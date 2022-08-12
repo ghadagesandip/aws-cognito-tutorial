@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser } from './cognito-service';
+import { registerUser, signInUser } from './cognito-service';
 
 interface IUserController {
   signUp: express.Handler,
@@ -35,7 +35,14 @@ const userController: IUserController = {
     try {
       const { email, password } = req.body;
       const result ={ email, password };
-      res.json(result);
+      signInUser(result).then(
+        data =>{
+          res.json(data);
+        }
+      )
+      .catch(err=>{
+        res.status(500).json(err);
+      })
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }

@@ -35,5 +35,48 @@ const registerUser = async (userData: any) => {
    
 }
 
-export { registerUser
+const signInUser = async (data: any) => {
+    try{
+        console.log('data', data)
+
+        var authenticationData = {
+            Username: data.email,
+            Password:  data.password,
+        };
+
+        var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(
+            authenticationData
+        );
+
+        var userData = {
+            Username: data.email,
+            Pool: userPool
+        };
+        console.log('userData', userData)
+      
+        return new Promise((resolve, reject) =>{
+
+            var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+            console.log('cognitoUser', cognitoUser)
+            cognitoUser.authenticateUser(authenticationDetails, {
+                onSuccess: function (result: any){
+                    console.log('accessToken...')
+                    var accessToken = result.getAccessToken().getJwtToken();
+                    console.log('accessToken', accessToken)
+                    resolve({message: 'success', accessToken})
+                },
+                onFailure: function(err: any) {
+                    console.log(err.message || JSON.stringify(err));
+                    reject({err: err})
+                },
+            })
+        })
+        
+    }catch(err){
+        console.log('err: ', err)
+        throw err;
+    }
+   
 }
+
+export { registerUser, signInUser }
