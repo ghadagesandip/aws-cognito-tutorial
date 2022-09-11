@@ -1,5 +1,3 @@
-import { AnyCnameRecord } from "dns";
-
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 
 const poolData = {    
