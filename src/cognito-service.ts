@@ -1,3 +1,5 @@
+import { AnyCnameRecord } from "dns";
+
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 
 const poolData = {    
@@ -12,14 +14,11 @@ const registerUser = async (userData: any) => {
     
         return new Promise((resolve, reject) =>{
 
-            console.log('userData', userData)
             var attributeList = [];
             attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({Name:"name",Value:userData.name}));
             attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({Name:"gender",Value:userData.gender}));
 
             userPool.signUp(userData.email, userData.password, attributeList, null, function(err: any, result: any){
-                console.log('err: ', err)
-                console.log('result: ', result)
       
                   if (err) {
                     reject(err)
@@ -37,7 +36,6 @@ const registerUser = async (userData: any) => {
 
 const signInUser = async (data: any) => {
     try{
-        console.log('data', data)
 
         var authenticationData = {
             Username: data.email,
@@ -52,31 +50,48 @@ const signInUser = async (data: any) => {
             Username: data.email,
             Pool: userPool
         };
-        console.log('userData', userData)
       
         return new Promise((resolve, reject) =>{
 
             var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-            console.log('cognitoUser', cognitoUser)
             cognitoUser.authenticateUser(authenticationDetails, {
                 onSuccess: function (result: any){
-                    console.log('accessToken...')
                     var accessToken = result.getAccessToken().getJwtToken();
-                    console.log('accessToken', accessToken)
                     resolve({message: 'success', accessToken})
                 },
                 onFailure: function(err: any) {
                     console.log(err.message || JSON.stringify(err));
-                    reject({err: err})
+                    reject(err)
                 },
             })
         })
         
     }catch(err){
-        console.log('err: ', err)
         throw err;
     }
-   
 }
 
-export { registerUser, signInUser }
+const confirmUser = async (data: any) => {
+    try{
+
+        const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+        var userData = {
+            Username: data.email,
+            Pool: userPool
+        };
+        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+        return new Promise((resolve, reject)=>{
+            cognitoUser.confirmRegistration(data.code, true, function(err: any, result: any) {
+                if (err) {
+                  reject(err);
+                }
+                resolve(result);
+            });
+        })
+    }catch(err){
+        throw err;
+    }
+}
+
+export { registerUser, signInUser, confirmUser }

@@ -1,10 +1,10 @@
 import express from "express";
-import { registerUser, signInUser } from './cognito-service';
+import { registerUser, signInUser, confirmUser } from './cognito-service';
 
 interface IUserController {
   signUp: express.Handler,
+  confirmEmailAddress: express.Handler,
   signIn: express.Handler,
-  confirmSignUp: express.Handler,
   getProfile: express.Handler,
 }
 
@@ -19,18 +19,18 @@ const userController: IUserController = {
       }).catch(err=>{
         res.status(500).json({ error: err.message });
       })
-     
+  },
+
+  confirmEmailAddress: async(req, res) => {
     
+    confirmUser(req.body).then(rs =>{
+      res.json({ message: `user confirmed`});
+    }).catch(err=>{
+      res.status(500).json({ error: err.message });
+    })
   },
-  confirmSignUp: async (req, res) => {
-    try {
-      const { email, code } = req.body;
-      const result = { email, code };
-      res.json({ message: result });
-    } catch (err: any) {
-      res.status(500).json({ message: err.message });
-    }
-  },
+
+ 
   signIn: async (req, res) => {
     try {
       const { email, password } = req.body;
