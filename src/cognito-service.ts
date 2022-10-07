@@ -1,3 +1,5 @@
+import { AnyCnameRecord } from "dns";
+
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 
 const poolData = {    
@@ -76,7 +78,31 @@ const signInUser = async (data: any) => {
         console.log('err: ', err)
         throw err;
     }
-   
 }
 
-export { registerUser, signInUser }
+const confirmUser = async (data: any) => {
+    try{
+       
+
+        const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+        var userData = {
+            Username: data.email,
+            Pool: userPool
+        };
+        var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+        return new Promise((resolve, reject)=>{
+            cognitoUser.confirmRegistration(data.code, true, function(err: any, result: any) {
+                if (err) {
+                  reject(err);
+                }
+                resolve(result);
+            });
+        })
+    }catch(err){
+        console.log('err: ', err)
+        throw err;
+    }
+}
+
+export { registerUser, signInUser, confirmUser }
