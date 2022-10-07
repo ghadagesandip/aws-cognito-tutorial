@@ -1,13 +1,16 @@
-import express from "express";
-import 'dotenv/config';
-import router from "./router";
+import http from 'http';
+import app from './app';
 
-const app = express();
-app.use(express.json());
-
-app.use('/api/v1/users', router);
 const port = process.env.PORT || 3000;
 
-app.listen(port, ()=>{
-    console.log(`Server is up and running ${port}`)
+const server = http.createServer(app)
+server.listen(port, ()=>{
+    console.log('up and running on port', port)
 })
+
+process.on('unhandledRejection', (reason: Error) => {
+    console.log('Unhandled Promise Rejection: reason:', reason.message);
+    console.log(reason.stack);
+});
+  
+

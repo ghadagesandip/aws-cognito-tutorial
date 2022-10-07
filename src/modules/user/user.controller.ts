@@ -1,7 +1,14 @@
+<<<<<<< HEAD:src/user.contrller.ts
 import express from "express";
 import { registerUser, signInUser, confirmUser } from './cognito-service';
+=======
+import express, { Router, Application } from "express";
+import { registerUser, signInUser, confirmUser } from '../../utils/cognito-service';
+import userModel from './user.model';
+>>>>>>> 190c2b2e3667442efc4b7f3a3ac3759b229cb862:src/modules/user/user.controller.ts
 
 interface IUserController {
+  initRoute: Function,
   signUp: express.Handler,
   confirmEmailAddress: express.Handler,
   signIn: express.Handler,
@@ -10,8 +17,16 @@ interface IUserController {
 
 
 const userController: IUserController = {
+  initRoute: () => {
+    const router = express.Router()
+    router.post('/signup', userController.signUp);
+    router.post('/confirm', userController.confirmEmailAddress);
+    router.post('/signin', userController.signIn);
+    router.get('/profile', userController.getProfile);
+    return router
+  },
+
   signUp : async (req, res) => {
-   
       const { password, gender, name, email } = req.body;
       const result = { password, gender, name, email };
       registerUser(result).then(rs =>{
